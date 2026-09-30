@@ -13,7 +13,14 @@ Project dùng Atlassian Rovo MCP có sẵn và không tự triển khai MCP serv
 
 ## Chạy local
 
-### 1. Tạo môi trường Python
+### 1. Clone nhánh dev
+
+```powershell
+git clone --branch dev https://github.com/NghiaAsi4n/chatbot_jira.git
+cd chatbot_jira
+```
+
+### 2. Tạo môi trường Python
 
 ```powershell
 python -m venv .venv
@@ -23,7 +30,7 @@ python -m pip install -e ".[dev]"
 
 Trên macOS hoặc Linux, dùng `source .venv/bin/activate`.
 
-### 2. Tạo file cấu hình
+### 3. Tạo file cấu hình
 
 PowerShell:
 
@@ -65,7 +72,7 @@ Nếu chưa có `ATLASSIAN_CLOUD_ID`, chạy lệnh đọc thông tin Jira:
 python -m chatbot_jira.smoke inspect
 ```
 
-## 3. Khởi động ứng dụng
+## 4. Khởi động ứng dụng
 
 ```powershell
 python -m uvicorn chatbot_jira.api:app --host 0.0.0.0 --port 8000 --env-file .env

@@ -1,6 +1,6 @@
 # Checklist MVP chatbot Jira
 
-Trạng thái: **M1, M2 và M3 hoàn thành, tiếp theo là M4**.
+Trạng thái: **M1, M2, M3 và M4 hoàn thành**.
 
 ## M1 — Jira MCP — Hoàn thành
 
@@ -26,14 +26,14 @@ Trạng thái: **M1, M2 và M3 hoàn thành, tiếp theo là M4**.
 - [x] Viết README: cấu hình `.env`, chạy local, test và giới hạn MVP.
 - [x] Kiểm tra `.gitignore` không cho secret và artifact vào Git.
 
-## M4 — Docker và GitHub dev
+## M4 — Docker và GitHub dev — Hoàn thành
 
 - [x] Tạo Dockerfile và `compose.yaml`.
 - [x] Chạy `docker compose up --build`; container healthy.
 - [x] Kiểm tra từ bản clone mới: build, health và chat đều hoạt động.
 - [x] Commit source trên nhánh `dev`.
-- [ ] Push lên GitHub nhánh `dev`.
-- [ ] Ghi lại repository URL và commit SHA.
+- [x] Push lên GitHub nhánh `dev`.
+- [x] Repository: [NghiaAsi4n/chatbot_jira](https://github.com/NghiaAsi4n/chatbot_jira), implementation commit: `d2576ce`.
 
 ## Nghiệm thu
 

@@ -1,6 +1,6 @@
 # Kế hoạch MVP: Chatbot tạo Jira ticket
 
-Trạng thái: **M1, M2 và M3 đã hoàn thành. M4 đã xong Docker và đang chờ GitHub remote để push**. Checklist: [todo.md](todo.md).
+Trạng thái: **M1, M2, M3 và M4 đã hoàn thành**. Checklist: [todo.md](todo.md).
 
 ## 1. Mục tiêu
 
@@ -62,7 +62,7 @@ Chỉ giữ kiểm tra cần thiết:
 - Một smoke test Jira thật; không tạo nhiều ticket thử.
 - README hướng dẫn cấu hình, chạy local và chạy test.
 
-### M4 — Docker và GitHub
+### M4 — Docker và GitHub — Hoàn thành
 
 - Tạo Dockerfile và `compose.yaml`.
 - Secret chỉ nằm trong `.env`, không đưa vào image hoặc Git.
