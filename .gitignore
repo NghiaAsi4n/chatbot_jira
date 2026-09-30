@@ -11,5 +11,6 @@ htmlcov/
 *.sqlite*
 *.db
 artifacts/
+tasks/
 dist/
 *.egg-info/
