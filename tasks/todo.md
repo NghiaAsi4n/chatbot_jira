@@ -30,8 +30,9 @@ Trạng thái: **M1, M2 và M3 hoàn thành, tiếp theo là M4**.
 
 - [x] Tạo Dockerfile và `compose.yaml`.
 - [x] Chạy `docker compose up --build`; container healthy.
-- [ ] Kiểm tra từ bản clone mới.
-- [ ] Commit và push lên GitHub nhánh `dev`.
+- [x] Kiểm tra từ bản clone mới: build, health và chat đều hoạt động.
+- [x] Commit source trên nhánh `dev`.
+- [ ] Push lên GitHub nhánh `dev`.
 - [ ] Ghi lại repository URL và commit SHA.
 
 ## Nghiệm thu

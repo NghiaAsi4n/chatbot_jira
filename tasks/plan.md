@@ -1,6 +1,6 @@
 # Kế hoạch MVP: Chatbot tạo Jira ticket
 
-Trạng thái: **M1, M2 và M3 đã hoàn thành, tiếp theo là M4**. Checklist: [todo.md](todo.md).
+Trạng thái: **M1, M2 và M3 đã hoàn thành. M4 đã xong Docker và đang chờ GitHub remote để push**. Checklist: [todo.md](todo.md).
 
 ## 1. Mục tiêu
 
