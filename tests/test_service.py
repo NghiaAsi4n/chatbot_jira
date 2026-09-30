@@ -136,6 +136,7 @@ async def test_ambiguous_task_clarifies():
     result = await service.handle(req(msg, _make_uuid("req3")))
     assert result.status == ChatStatus.CLARIFICATION_REQUIRED
     assert "màn hình" in result.questions[0]
+    assert result.message is None
     assert gw.call_count == 0
 
 @pytest.mark.asyncio

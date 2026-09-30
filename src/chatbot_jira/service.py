@@ -154,14 +154,12 @@ class TicketService:
                 )
             conv.current_draft = draft
             qs = draft.questions
-            msg = "\n".join(f"- {q}" for q in qs)
-            conv.add_assistant(msg)
+            conv.add_assistant("\n".join(f"- {q}" for q in qs))
             return ChatResult(
                 status=ChatStatus.CLARIFICATION_REQUIRED,
                 request_id=req.request_id,
                 conversation_id=conv_id,
                 questions=qs,
-                message=msg,
             )
 
         # action == CREATE

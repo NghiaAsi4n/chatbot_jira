@@ -305,7 +305,9 @@
         if (status === 'created') {
           text = text || ('✅ Đã tạo ticket ' + (data.issue_key || ''));
         } else if (status === 'clarification_required') {
-          text = text || 'Cần thêm thông tin:';
+          text = data.questions && data.questions.length
+            ? ''
+            : (text || 'Cần thêm thông tin.');
         } else if (status === 'unsupported') {
           text = text || 'Tôi chỉ hỗ trợ tạo Jira ticket. Hãy mô tả task cần tạo.';
         } else if (status === 'unknown') {
