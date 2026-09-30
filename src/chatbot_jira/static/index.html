@@ -68,6 +68,9 @@
     .message.bot.status-created {
       border-left: 4px solid #00875a;
     }
+    .message.bot.status-updated {
+      border-left: 4px solid #00875a;
+    }
     .message.bot.status-failed {
       border-left: 4px solid #de350b;
     }
@@ -302,6 +305,9 @@
         const status = data.status;
 
         let text = data.message || '';
+        if (status === 'updated' && !text) {
+          text = 'Updated ' + (data.issue_key || '') + ' to Done.';
+        }
         if (status === 'created') {
           text = text || ('✅ Đã tạo ticket ' + (data.issue_key || ''));
         } else if (status === 'clarification_required') {

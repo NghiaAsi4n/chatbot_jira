@@ -29,6 +29,7 @@ class TicketLanguage(str, Enum):
 class ChatStatus(str, Enum):
     CLARIFICATION_REQUIRED = "clarification_required"
     CREATED = "created"
+    UPDATED = "updated"
     FAILED = "failed"
     UNKNOWN = "unknown"
     UNSUPPORTED = "unsupported"

@@ -19,6 +19,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
+import unicodedata
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -97,6 +99,13 @@ class TicketService:
     async def handle(self, req: ChatRequest) -> ChatResult:
         conv_id = req.conversation_id or req.request_id
         conv = self._conv(conv_id)
+
+        # Require both an explicit Jira key and a done/finished phrase. This
+        # prevents an error code such as "403" from being treated as an issue.
+        done_issue_key = _done_issue_key(req.message)
+        if done_issue_key:
+            conv.add_user(req.message)
+            return await self._mark_issue_done(req, conv_id, conv, done_issue_key)
 
         # --- Check idempotency store first ---
         content_dict = {"message": req.message, "conversation_id": req.conversation_id}
@@ -231,10 +240,73 @@ class TicketService:
             message=success_msg,
         )
 
+    async def _mark_issue_done(
+        self,
+        req: ChatRequest,
+        conv_id: str,
+        conv: ConversationState,
+        issue_key: str,
+    ) -> ChatResult:
+        try:
+            gateway = await self._get_gateway()
+            transitioned = await gateway.transition_issue_to_done(issue_key)
+        except WriteOutcomeUnknown as exc:
+            logger.warning("Unknown transition outcome: %s", exc)
+            return ChatResult(
+                status=ChatStatus.UNKNOWN,
+                request_id=req.request_id,
+                conversation_id=conv_id,
+                message=f"The update for {issue_key} was sent, but could not be verified. Check Jira before retrying.",
+            )
+        except JiraToolError as exc:
+            return ChatResult(
+                status=ChatStatus.FAILED,
+                request_id=req.request_id,
+                conversation_id=conv_id,
+                message=f"Jira error: {exc}",
+            )
+        except Exception as exc:
+            logger.exception("Unexpected error while moving %s to Done: %s", issue_key, exc)
+            return ChatResult(
+                status=ChatStatus.FAILED,
+                request_id=req.request_id,
+                conversation_id=conv_id,
+                message="Could not connect to Jira. Check configuration.",
+            )
+
+        issue_url = _build_url(gateway, transitioned.key)
+        if transitioned.already_done:
+            message = f"{transitioned.key} is already in {transitioned.status}."
+        else:
+            message = f"\u2705 Moved {transitioned.key} to {transitioned.status}."
+        conv.add_assistant(message)
+        return ChatResult(
+            status=ChatStatus.UPDATED,
+            request_id=req.request_id,
+            conversation_id=conv_id,
+            issue_key=transitioned.key,
+            issue_url=issue_url,
+            message=message,
+        )
+
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+_ISSUE_KEY_RE = re.compile(r"\b([A-Za-z][A-Za-z0-9_]*-[0-9]+)\b")
+_DONE_TERMS = ("done", "finished", "complete", "completed", "xong", "hoan thanh", "hoan tat")
+_NEGATIVE_DONE_TERMS = ("not done", "not finished", "not complete", "chua xong", "chua hoan thanh", "chua hoan tat")
+
+
+def _done_issue_key(message: str) -> str | None:
+    folded = unicodedata.normalize("NFKD", message).encode("ascii", "ignore").decode().casefold()
+    if any(term in folded for term in _NEGATIVE_DONE_TERMS):
+        return None
+    if not any(re.search(rf"\b{re.escape(term)}\b", folded) for term in _DONE_TERMS):
+        return None
+    match = _ISSUE_KEY_RE.search(message)
+    return match.group(1).upper() if match else None
 
 def _stored_to_result(stored: StoredRequest, request_id: str, conv_id: str) -> ChatResult:
     from .store import STATUS_SUCCEEDED, STATUS_FAILED, STATUS_UNKNOWN

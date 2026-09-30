@@ -46,6 +46,11 @@ class _RequestScopedJiraGateway:
             gateway = await JiraMcpGateway.create(mcp_client, self.settings)
             return await gateway.create_and_verify_issue(summary, description)
 
+    async def transition_issue_to_done(self, issue_key: str):
+        async with connected_client(self.settings) as mcp_client:
+            gateway = await JiraMcpGateway.create(mcp_client, self.settings)
+            return await gateway.transition_issue_to_done(issue_key)
+
 
 def _get_settings() -> Settings:
     global _settings

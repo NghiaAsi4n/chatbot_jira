@@ -76,6 +76,13 @@ class CreatedIssue:
     description: str
 
 
+@dataclass(frozen=True)
+class TransitionedIssue:
+    key: str
+    status: str
+    already_done: bool
+
+
 def description_text(value):
     if isinstance(value, str):
         return value
@@ -98,6 +105,7 @@ class JiraMcpGateway:
         "getAccessibleAtlassianResources",
         "atlassianUserInfo",
         "createJiraIssue",
+        "transitionJiraIssue",
         "getJiraIssue",
         "searchJiraIssuesUsingJql",
     }
@@ -173,3 +181,63 @@ class JiraMcpGateway:
         except Exception as exc:
             raise WriteOutcomeUnknown(f"Issue {key} created; read-back verification failed") from exc
         return CreatedIssue(key, actual_summary, actual_description)
+
+    async def transition_issue_to_done(self, issue_key: str) -> TransitionedIssue:
+        key = issue_key.strip().upper()
+        if not re.fullmatch(re.escape(self.settings.project_key) + r"-[0-9]+", key):
+            raise JiraToolError(
+                f"Only issues in project {self.settings.project_key} can be updated"
+            )
+
+        current = await self._read_issue(key)
+        current_status = current.get("fields", {}).get("status", {})
+        if _is_done_status(current_status):
+            return TransitionedIssue(key, current_status.get("name", "Done"), True)
+
+        transition_args = self.catalog.arguments("transitionJiraIssue", {
+            "cloudId": self.settings.cloud_id,
+            "issueIdOrKey": key,
+            "transitionName": "Done",
+        })
+        try:
+            transition_result = await self.client.call_tool(
+                "transitionJiraIssue", transition_args
+            )
+        except Exception as exc:
+            raise WriteOutcomeUnknown(
+                f"Transition outcome is unknown for {key}; inspect Jira before retrying"
+            ) from exc
+        if transition_result.is_error:
+            extract_payload(transition_result)
+
+        verified = await self._read_issue(key)
+        final_status = verified.get("fields", {}).get("status", {})
+        if not _is_done_status(final_status):
+            raise WriteOutcomeUnknown(
+                f"Transition was sent for {key}, but the Done status could not be verified"
+            )
+        return TransitionedIssue(key, final_status.get("name", "Done"), False)
+
+    async def _read_issue(self, issue_key: str) -> dict[str, Any]:
+        payload = await self.call("getJiraIssue", {
+            "cloudId": self.settings.cloud_id,
+            "issueIdOrKey": issue_key,
+            "view": "evidence",
+        })
+        if isinstance(payload, dict) and isinstance(payload.get("data"), dict):
+            payload = payload["data"]
+        if not isinstance(payload, dict):
+            raise JiraToolError("Jira returned an invalid issue response")
+        return payload
+
+
+def _is_done_status(status: Any) -> bool:
+    if not isinstance(status, dict):
+        return False
+    name = str(status.get("name", "")).strip().casefold()
+    category = status.get("statusCategory", {})
+    category_name = (
+        str(category.get("name", "")).strip().casefold()
+        if isinstance(category, dict) else ""
+    )
+    return name == "done" or category_name == "done"
