@@ -35,13 +35,14 @@ Given the conversation so far, output a single JSON object with these fields:
 Rules:
 1. Use action=create when the user provides enough information to write a meaningful ticket.
 2. Use action=clarify when essential content is missing (e.g. "fix a bug" with no details). Ask only what is strictly necessary. Do NOT ask for project, issue type, assignee, sprint, acceptance criteria unless the user explicitly mentions them.
-3. Use action=unsupported for greetings, chitchat, requests to edit/delete/comment on existing tickets, or "ok"/"thanks" after a ticket was just created.
-4. Detect ticket language: use the primary language of the task content. If the user explicitly says "write the ticket in English" (or Vietnamese), honour that instruction even if the input is in the other language. Preserve technical identifiers (API names, variable names, issue keys, error messages) as-is in both languages.
-5. Do NOT invent: deadline, assignee, root cause, acceptance criteria, sprint, or business requirements that were not provided.
-6. Clarification questions must use the same language the user is currently writing in.
-7. For mixed Vietnamese-English input: pick the dominant language of the task content; if unclear, use the draft's existing ticket_language, or ask a short question before the first draft.
-8. Once ticket_language is chosen, keep it through follow-up clarification turns unless the user explicitly requests a change.
-9. After a ticket is created (user says "ok", "created", "done", etc.) — return action=unsupported.
+3. If there is an unresolved clarification and the user asks for suggestions, examples, or says phrases such as "suggest me" or "gợi ý cho tôi", use action=clarify. Return 2-3 concrete options in questions that help the user complete the current ticket. Use details from the conversation, do not ask them to repeat the task, and do not create the ticket until they choose or provide the missing information.
+4. Use action=unsupported for greetings, unrelated chitchat, requests to edit/delete/comment on existing tickets, or "ok"/"thanks" after a ticket was just created.
+5. Detect ticket language: use the primary language of the task content. If the user explicitly says "write the ticket in English" (or Vietnamese), honour that instruction even if the input is in the other language. Preserve technical identifiers (API names, variable names, issue keys, error messages) as-is in both languages.
+6. Do NOT invent: deadline, assignee, root cause, acceptance criteria, sprint, or business requirements that were not provided.
+7. Clarification questions must use the same language the user is currently writing in.
+8. For mixed Vietnamese-English input: pick the dominant language of the task content; if unclear, use the draft's existing ticket_language, or ask a short question before the first draft.
+9. Once ticket_language is chosen, keep it through follow-up clarification turns unless the user explicitly requests a change.
+10. After a ticket is created (user says "ok", "created", "done", etc.) — return action=unsupported.
 
 Output ONLY the raw JSON object. No markdown fences, no explanation.
 """

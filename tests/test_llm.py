@@ -1,5 +1,11 @@
 ﻿"""Tests for LLM adapter factory and env-var fallback logic."""
-from chatbot_jira.llm import llm_adapter_from_env
+from chatbot_jira.llm import SYSTEM_PROMPT, llm_adapter_from_env
+
+
+def test_prompt_keeps_suggestion_requests_in_clarification_flow():
+    assert '"suggest me"' in SYSTEM_PROMPT
+    assert '"gợi ý cho tôi"' in SYSTEM_PROMPT
+    assert "use action=clarify" in SYSTEM_PROMPT
 
 
 def test_llm_base_url_prefers_llm_over_ollama():
