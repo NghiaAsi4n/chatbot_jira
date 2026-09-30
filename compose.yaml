@@ -1,0 +1,15 @@
+services:
+  app:
+    build:
+      context: .
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - chatbot-jira-data:/app/data
+    init: true
+    restart: unless-stopped
+
+volumes:
+  chatbot-jira-data:
